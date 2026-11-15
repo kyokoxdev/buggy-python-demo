@@ -18,13 +18,11 @@ def add_user(conn, user_id, name, password_hash):
 
 
 def get_user(conn, user_id):
-    query = f"SELECT * FROM users WHERE id = '{user_id}'"
-    return conn.execute(query).fetchone()
+    return conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
 
 
 def search_products(conn, keyword):
-    sql = "SELECT name, price FROM products WHERE name LIKE '%" + keyword + "%'"
-    return conn.execute(sql).fetchall()
+    return conn.execute("SELECT name, price FROM products WHERE name LIKE ?", ("%" + keyword + "%",)).fetchall()
 
 
 def count_products(conn):

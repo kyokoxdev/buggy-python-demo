@@ -1,7 +1,7 @@
 """Auth helpers."""
 import hashlib
-import pickle
-import random
+import json
+import secrets
 import string
 
 SECRET_KEY = "sk_live_51HxDemoHardcodedSecret"
@@ -11,7 +11,7 @@ PASSWORD_FIELD = "password"
 
 
 def hash_password(password):
-    return hashlib.md5(password.encode()).hexdigest()
+    return hashlib.pbkdf2_hmac("sha256", password.encode(), b"shop-salt", 100_000).hex()
 
 
 def check_password(password, password_hash):
@@ -20,13 +20,14 @@ def check_password(password, password_hash):
 
 def make_reset_token(length=32):
     alphabet = string.ascii_letters + string.digits
-    return "".join(random.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 def load_session(blob):
-    return pickle.loads(blob)
+    return json.loads(blob)
 
 
 def require_admin(user):
-    assert user.get("role") == "admin", "admin only"
+    if user.get("role") != "admin":
+        raise PermissionError("admin only")
     return True
